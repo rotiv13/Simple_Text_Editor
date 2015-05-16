@@ -4,12 +4,12 @@ import java.util.List;
 public class Buffer {
 	private final ArrayList<StringBuilder> lines;
 	private final Cursor cursor;
+	//texto a ser copiado
+	public StringBuilder clipBoard;
 	//posicao da marca do cursor
 	private int markRow, markCol;
 	//true=temos uma posição marcada; false= nao tem posiçao marcada
 	private boolean marked;
-	//texto a ser copiado
-	private StringBuilder clipBoard;
 	//ultimas operações
 	private List<Edit> undoList;
 
@@ -36,7 +36,7 @@ public class Buffer {
 
 	}
 
-	public void setMark(int line, int col) {
+	public void setMark(int col, int line) {
 
 	}
 
