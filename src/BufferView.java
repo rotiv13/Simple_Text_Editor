@@ -71,6 +71,10 @@ public class BufferView {
                             fBuffer.insertChar(k.getCharacter());
                         }
                         if (k.isCtrlPressed()) {
+                            if (k.getCharacter() == 'm') {
+                                System.out.println("Marked");
+                                setMark();
+                            }
                             //save
                             if (k.getCharacter() == 's') {
                                 fBuffer.save();
@@ -82,12 +86,13 @@ public class BufferView {
                                     fBuffer.saveAs(path);
                                 }
                             }
+
                             //cut
                             if (k.getCharacter() == 'x') {
                                 fBuffer.cut();
                             }
                             //copy
-                            if (k.getCharacter() == 'c') {
+                            if (k.getCharacter() == 'c' && fBuffer.isMarked()) {
                                 fBuffer.copy();
                             }
                             //undo
@@ -98,9 +103,8 @@ public class BufferView {
                             if (k.getCharacter() == 'v' && fBuffer.clipBoard != null) {
                                 fBuffer.paste();
                             }
-//                            if (k.getCharacter() == ' ') {
-//                                fBuffer.setMark(screen.getCursorPosition().getColumn(), screen.getCursorPosition().getRow());
-//                            }
+
+
                         }
                         delete = false;
                         break;
@@ -123,6 +127,14 @@ public class BufferView {
 
     public static void main(String[] args) {
         BufferView bf = new BufferView();
+    }
+
+    private void setMark() {
+        int column = screen.getCursorPosition().getColumn();
+        int line = screen.getCursorPosition().getRow();
+        System.out.println(column + " " + line);
+        fBuffer.setMark(column, line);
+
     }
 
     private void phisicToLogic() {
@@ -159,6 +171,10 @@ public class BufferView {
     }
 
     private void drawText() {
+        if (fBuffer.isMarked()) {
+            sWriter.setForegroundColor(Terminal.Color.BLACK);
+            sWriter.setBackgroundColor(Terminal.Color.WHITE);
+        }
         for (int i = 0; i < visualText.size(); i++) {
             sWriter.drawString(0, i, visualText.get(i));
             updateCursor();
@@ -168,7 +184,7 @@ public class BufferView {
     private void updateCursor() {
         int column = fBuffer.getCursor().getColumn();
         int line = fBuffer.getCursor().getLine();
-        System.out.println("col: " + column + "\nline: " + line);
+//        System.out.println("col: " + column + "\nline: " + line);
         screen.setCursorPosition(column, line);
     }
 }

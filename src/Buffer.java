@@ -37,7 +37,15 @@ public class Buffer {
 	}
 
 	public void setMark(int col, int line) {
+		markRow = line;
+		markCol = col;
+		marked = true;
 
+		System.out.println("col: " + markCol + "\n line: " + markRow);
+	}
+
+	public boolean isMarked() {
+		return marked;
 	}
 
 	public void unsetMark() {
@@ -45,6 +53,11 @@ public class Buffer {
 	}
 
 	public void copy() {
+		StringBuilder line = getNLine(markRow);
+		line.delete(markCol, getCursor().getColumn());
+		markCol = 0;
+		markRow = 0;
+		marked = false;
 
 	}
 

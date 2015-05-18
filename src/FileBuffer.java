@@ -71,7 +71,6 @@ public class FileBuffer extends Buffer {
             reader = new BufferedReader(new FileReader(file));
 
             for (String x = reader.readLine(); x != null; x = reader.readLine()) {
-                System.out.println(x);
                 insertStr(x);
                 insertChar('\n');
             }
