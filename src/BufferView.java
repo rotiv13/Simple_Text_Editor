@@ -20,7 +20,7 @@ public class BufferView {
     private Screen screen;
     private ScreenWriter sWriter;
     private boolean delete = false;
-    private ArrayList<String> logicText;
+    private ArrayList<String> visualText;
 
 
     private BufferView() {
@@ -63,26 +63,38 @@ public class BufferView {
                         fBuffer.deleteCharInFront();
                         delete = true;
                         break;
+                    case Enter:
+                        fBuffer.insertChar('\n');
+                        break;
                     case NormalKey:
                         if (!delete && !k.isCtrlPressed()) {
                             fBuffer.insertChar(k.getCharacter());
                         }
                         if (k.isCtrlPressed()) {
+                            //save
                             if (k.getCharacter() == 's') {
                                 fBuffer.save();
                             }
                             if (k.isAltPressed()) {
+                                //saveAS
                                 if (k.getCharacter() == 'w') {
                                     Path path = Paths.get("C:\\Users\\Vitor Afonso\\workspace\\Trabalho_2_Parte_2\\src\\new_file2.txt");
                                     fBuffer.saveAs(path);
                                 }
                             }
+                            //cut
                             if (k.getCharacter() == 'x') {
                                 fBuffer.cut();
                             }
+                            //copy
                             if (k.getCharacter() == 'c') {
                                 fBuffer.copy();
                             }
+                            //undo
+                            if (k.getCharacter() == 'z') {
+                                fBuffer.undo();
+                            }
+                            //paste
                             if (k.getCharacter() == 'v' && fBuffer.clipBoard != null) {
                                 fBuffer.paste();
                             }
@@ -92,15 +104,12 @@ public class BufferView {
                         }
                         delete = false;
                         break;
-                    case Enter:
-                        fBuffer.insertChar('\n');
-                        break;
+
 
                 }
             }
             phisicToLogic();
             drawText();
-
             updateCursor();
             screen.refresh();
             try {
@@ -117,13 +126,12 @@ public class BufferView {
     }
 
     private void phisicToLogic() {
-        logicText = new ArrayList<>();
+        visualText.clear();
+        int columns = screen.getTerminalSize().getColumns();
         for (StringBuilder sb : fBuffer.getAllLines()) {
-            if (sb.length() > 95) {
-                splitString(sb.toString(), 95);
-            } else {
-                logicText.add(sb.toString());
-            }
+            if (sb.length() >= columns) {
+                splitString(sb.toString(), columns);
+            } else visualText.add(sb.toString());
         }
     }
 
@@ -132,7 +140,8 @@ public class BufferView {
         Matcher matcher = Pattern.compile(".{0," + length + "}").matcher(string);
         while (matcher.find()) {
             chunck = string.substring(matcher.start(), matcher.end());
-            logicText.add(chunck);
+            if (!chunck.equals(""))
+                visualText.add(chunck);
         }
 
     }
@@ -142,6 +151,7 @@ public class BufferView {
         Terminal term = TerminalFacade.createSwingTerminal(TerminalAppearance.DEFAULT_APPEARANCE, width, height);
         screen = new Screen(term);
         sWriter = new ScreenWriter(screen);
+        visualText = new ArrayList<>();
         screen.startScreen();
         Path path = Paths.get("C:\\Users\\Vitor Afonso\\workspace\\Trabalho_2_Parte_2\\src\\new_file.txt");
         fBuffer.open(path);
@@ -149,9 +159,8 @@ public class BufferView {
     }
 
     private void drawText() {
-
-        for (int i = 0; i < logicText.size(); i++) {
-            sWriter.drawString(0, i, logicText.get(i));
+        for (int i = 0; i < visualText.size(); i++) {
+            sWriter.drawString(0, i, visualText.get(i));
             updateCursor();
         }
     }
@@ -159,7 +168,7 @@ public class BufferView {
     private void updateCursor() {
         int column = fBuffer.getCursor().getColumn();
         int line = fBuffer.getCursor().getLine();
-        System.out.println("col: " + column + "line: " + line);
+        System.out.println("col: " + column + "\nline: " + line);
         screen.setCursorPosition(column, line);
     }
 }

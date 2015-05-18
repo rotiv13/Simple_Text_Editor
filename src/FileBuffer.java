@@ -21,6 +21,7 @@ public class FileBuffer extends Buffer {
      */
     public void save() {
         BufferedWriter writer;
+        modified = false;
         try {
             writer = Files.newBufferedWriter(savePath, StandardCharsets.UTF_8);
             for (StringBuilder sb : getAllLines()) {
@@ -40,6 +41,7 @@ public class FileBuffer extends Buffer {
      */
     public void saveAs(Path path) {
         BufferedWriter writer;
+        modified = false;
         if (path == null) {
             throw new IllegalArgumentException("File.saveAs: Path == null");
         }
@@ -63,7 +65,6 @@ public class FileBuffer extends Buffer {
      */
     public void open(Path path) {
         BufferedReader reader = null;
-
         try {
             savePath = path;
             File file = new File(path.toUri());
@@ -92,15 +93,6 @@ public class FileBuffer extends Buffer {
         modified = true;
     }
 
-    @Override
-    public void moveNextLine() {
-        super.moveNextLine();
-    }
-
-    @Override
-    public void moveHome() {
-        super.moveHome();
-    }
 
     @Override
     public void insertChar(char c) {
@@ -108,34 +100,18 @@ public class FileBuffer extends Buffer {
         modified = true;
     }
 
-    @Override
-    public void moveNext() {
-        super.moveNext();
-    }
 
     @Override
     public void deleteChar() {
         super.deleteChar();
+        modified = true;
     }
 
     @Override
     public void deleteCharInFront() {
         super.deleteCharInFront();
+        modified = true;
     }
 
-    @Override
-    public void movePrev() {
-        super.movePrev();
-    }
-
-    @Override
-    public void movePrevLine() {
-        super.movePrevLine();
-    }
-
-    @Override
-    public void moveEnd() {
-        super.moveEnd();
-    }
 
 }
