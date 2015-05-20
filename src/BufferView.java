@@ -13,18 +13,26 @@ import java.util.regex.Pattern;
 
 public class BufferView {
     //largura e altura da janela
-    private final int width = 100, height = 30;
+    private final int WIDTH = 100, HEIGHT = 30;
+    boolean delete = false;
     private FileBuffer fBuffer;
     // linha início da janela
-    private int startRow;
+    private int startRow = 0;
     private Screen screen;
     private ScreenWriter sWriter;
-    private boolean delete = false;
     private ArrayList<String> visualText;
 
 
     private BufferView() {
         startScreen();
+        keyInput();
+    }
+
+    public static void main(String[] args) {
+        BufferView bf = new BufferView();
+    }
+
+    private void keyInput() {
         while (true) {
             screen.clear();
             Key k = screen.readInput();
@@ -46,7 +54,7 @@ public class BufferView {
                         fBuffer.moveNext();
                         break;
                     case Tab:
-                        fBuffer.insertChar('\t');
+                        fBuffer.insertStr("    ");
                         break;
                     case End:
                         fBuffer.moveEnd();
@@ -71,9 +79,14 @@ public class BufferView {
                             fBuffer.insertChar(k.getCharacter());
                         }
                         if (k.isCtrlPressed()) {
-                            if (k.getCharacter() == 'm') {
-                                System.out.println("Marked");
-                                setMark();
+                            System.out.println("control");
+                            if (k.getCharacter() == 'k') {
+                                if (!fBuffer.isMarked())
+                                    setMark();
+
+                                else if (fBuffer.isMarked()) {
+                                    fBuffer.unsetMark();
+                                }
                             }
                             //save
                             if (k.getCharacter() == 's') {
@@ -92,7 +105,7 @@ public class BufferView {
                                 fBuffer.cut();
                             }
                             //copy
-                            if (k.getCharacter() == 'c' && fBuffer.isMarked()) {
+                            if (k.getCharacter() == 'c') {
                                 fBuffer.copy();
                             }
                             //undo
@@ -123,10 +136,6 @@ public class BufferView {
             }
 
         }
-    }
-
-    public static void main(String[] args) {
-        BufferView bf = new BufferView();
     }
 
     private void setMark() {
@@ -160,7 +169,7 @@ public class BufferView {
 
     private void startScreen() {
         fBuffer = new FileBuffer();
-        Terminal term = TerminalFacade.createSwingTerminal(TerminalAppearance.DEFAULT_APPEARANCE, width, height);
+        Terminal term = TerminalFacade.createSwingTerminal(TerminalAppearance.DEFAULT_APPEARANCE, WIDTH, HEIGHT);
         screen = new Screen(term);
         sWriter = new ScreenWriter(screen);
         visualText = new ArrayList<>();
@@ -171,15 +180,23 @@ public class BufferView {
     }
 
     private void drawText() {
-        if (fBuffer.isMarked()) {
-            sWriter.setForegroundColor(Terminal.Color.BLACK);
-            sWriter.setBackgroundColor(Terminal.Color.WHITE);
-        }
-        for (int i = 0; i < visualText.size(); i++) {
+        for (int i = startRow; i < visualText.size(); i++) {
+            if (fBuffer.isMarked() && i == fBuffer.getMarkRow()) {
+                sWriter.setBackgroundColor(Terminal.Color.BLUE);
+                sWriter.setForegroundColor(Terminal.Color.MAGENTA);
+            }
             sWriter.drawString(0, i, visualText.get(i));
             updateCursor();
+            notMarked();
+
         }
     }
+
+    private void notMarked() {
+        sWriter.setForegroundColor(Terminal.Color.WHITE);
+        sWriter.setBackgroundColor(Terminal.Color.BLACK);
+    }
+
 
     private void updateCursor() {
         int column = fBuffer.getCursor().getColumn();

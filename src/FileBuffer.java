@@ -1,4 +1,6 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,6 +36,7 @@ public class FileBuffer extends Buffer {
         }
     }
 
+
     /**
      * Guardar um documento num certo path
      *
@@ -67,14 +70,11 @@ public class FileBuffer extends Buffer {
         BufferedReader reader = null;
         try {
             savePath = path;
-            File file = new File(path.toUri());
-            reader = new BufferedReader(new FileReader(file));
-
+            reader = Files.newBufferedReader(path);
             for (String x = reader.readLine(); x != null; x = reader.readLine()) {
                 insertStr(x);
                 insertChar('\n');
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
