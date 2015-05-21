@@ -1,5 +1,5 @@
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Stack;
 
 public class Buffer {
     private final ArrayList<StringBuilder> lines;
@@ -11,13 +11,14 @@ public class Buffer {
     //true=temos uma posição marcada; false= nao tem posiçao marcada
     private boolean marked;
     //ultimas operações
-    private List<Edit> undoList;
+    private Stack<Edit> undoList;
 
     public Buffer() {
         lines = new ArrayList<StringBuilder>();
         StringBuilder initBuilder = new StringBuilder();
         lines.add(initBuilder);
         cursor = new Cursor(0, 0);
+        undoList = new Stack<>();
     }
 
     public Buffer(String str) {
@@ -25,6 +26,7 @@ public class Buffer {
         StringBuilder initBuilder = new StringBuilder();
         lines.add(initBuilder);
         cursor = new Cursor(0, 0);
+        undoList = new Stack<>();
         String[] temp;
         if (str.contains("\n")) {
             temp = str.split("\n");
@@ -59,6 +61,7 @@ public class Buffer {
         markCol = 0;
         markRow = 0;
         marked = false;
+        clipBoard = new StringBuilder();
     }
 
     public void copy() {
@@ -108,7 +111,6 @@ public class Buffer {
                     }
                 }
             }
-            System.out.println(clipBoard.toString());
         }
     }
 
@@ -186,27 +188,50 @@ public class Buffer {
 
     }
 
+    /**
+     * Pastes the content of the clipBoard into the buffer
+     */
     public void paste() {
-        insertStrLn(clipBoard);
+        insertStrWithLn();
         markCol = 0;
         markRow = 0;
         marked = false;
         clipBoard = new StringBuilder();
     }
 
-    private void insertStrLn(StringBuilder clipBoard) {
+    /**
+     * Like insertStr(String) but if the String has '\n' it doesnt return an error
+     */
+    private void insertStrWithLn() {
         String temp = clipBoard.toString();
         for (char c : temp.toCharArray()) {
             insertChar(c);
         }
     }
 
-
+    /**
+     * @param edit
+     */
     private void undo(Edit edit) {
-
+        switch (edit.getOp()) {
+            case INSERT:
+                break;
+            case DELETE:
+                break;
+            case PASTE:
+                break;
+            case COPY:
+                break;
+            case CUT:
+                break;
+            default:
+                break;
+        }
     }
 
     public void undo() {
+        if (!undoList.isEmpty())
+            undo(undoList.pop());
 
     }
 

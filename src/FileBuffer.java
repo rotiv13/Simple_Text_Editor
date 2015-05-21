@@ -16,10 +16,8 @@ public class FileBuffer extends Buffer {
     }
 
 
-
     /**
      * Guarda o documento do path actual;
-     *
      */
     public void save() {
         BufferedWriter writer;
@@ -70,7 +68,6 @@ public class FileBuffer extends Buffer {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     /**

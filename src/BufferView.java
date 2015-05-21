@@ -79,7 +79,6 @@ public class BufferView {
                             fBuffer.insertChar(k.getCharacter());
                         }
                         if (k.isCtrlPressed()) {
-                            System.out.println("control");
                             if (k.getCharacter() == 'k') {
                                 if (!fBuffer.isMarked())
                                     setMark();
@@ -201,7 +200,6 @@ public class BufferView {
     private void updateCursor() {
         int column = fBuffer.getCursor().getColumn();
         int line = fBuffer.getCursor().getLine();
-//        System.out.println("col: " + column + "\nline: " + line);
         screen.setCursorPosition(column, line);
     }
 }
