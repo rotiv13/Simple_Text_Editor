@@ -24,11 +24,17 @@ public class FileBuffer extends Buffer {
     public void save() {
         BufferedWriter writer;
         modified = false;
+        boolean first = true;
         try {
             writer = Files.newBufferedWriter(savePath, StandardCharsets.UTF_8);
             for (StringBuilder sb : getAllLines()) {
-                writer.write(sb.toString());
-                writer.newLine();
+                if (first) {
+                    writer.write(sb.toString());
+                    first = false;
+                } else {
+                    writer.newLine();
+                    writer.write(sb.toString());
+                }
             }
             writer.flush();
         } catch (IOException e) {
@@ -45,14 +51,20 @@ public class FileBuffer extends Buffer {
     public void saveAs(Path path) {
         BufferedWriter writer;
         modified = false;
+        boolean first = true;
         if (path == null) {
             throw new IllegalArgumentException("File.saveAs: Path == null");
         }
         try {
             writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8);
             for (StringBuilder sb : getAllLines()) {
-                writer.write(sb.toString());
-                writer.newLine();
+                if (first) {
+                    writer.write(sb.toString());
+                    first = false;
+                } else {
+                    writer.newLine();
+                    writer.write(sb.toString());
+                }
             }
             writer.flush();
         } catch (IOException e) {
