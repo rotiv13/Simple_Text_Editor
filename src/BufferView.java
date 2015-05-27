@@ -115,8 +115,6 @@ public class BufferView {
                             if (k.getCharacter() == 'v' && fBuffer.clipBoard != null) {
                                 fBuffer.paste();
                             }
-
-
                         }
                         delete = false;
                         break;

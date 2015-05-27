@@ -260,9 +260,9 @@ public class Buffer {
     }
 
     private boolean validPos(int col, int lines) {
-        int cursor_line = getCursor().getLine();
         int col_lines = getNLine(lines).length();
-        return col >= 0 && col <= col_lines && lines >= 0 && lines <= getLinesCount();
+        int linesCount = getLinesCount();
+        return col >= 0 && col <= col_lines && lines >= 0 && lines <= linesCount;
     }
 
     public void insertStr(String txt) {
@@ -275,6 +275,7 @@ public class Buffer {
             setCursor(column + txt.length(), line);
         }
     }
+
 
     public void insertChar(char c) {
         if (c == '\n') {
