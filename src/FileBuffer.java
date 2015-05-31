@@ -19,25 +19,23 @@ public class FileBuffer extends Buffer {
     /**
      * Guarda o documento do path actual;
      */
-    public void save() {
+    public void save() throws IOException {
         BufferedWriter writer;
         modified = false;
         boolean first = true;
-        try {
-            writer = Files.newBufferedWriter(savePath, StandardCharsets.UTF_8);
-            for (StringBuilder sb : getAllLines()) {
-                if (first) {
-                    writer.write(sb.toString());
-                    first = false;
-                } else {
-                    writer.newLine();
-                    writer.write(sb.toString());
-                }
+
+        writer = Files.newBufferedWriter(savePath, StandardCharsets.UTF_8);
+        for (StringBuilder sb : getAllLines()) {
+            if (first) {
+                writer.write(sb.toString());
+                first = false;
+            } else {
+                writer.newLine();
+                writer.write(sb.toString());
             }
-            writer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+        writer.flush();
+
     }
 
 
@@ -46,28 +44,9 @@ public class FileBuffer extends Buffer {
      *
      * @param path
      */
-    public void saveAs(Path path) {
-        BufferedWriter writer;
-        modified = false;
-        boolean first = true;
-        if (path == null) {
-            throw new IllegalArgumentException("File.saveAs: Path == null");
-        }
-        try {
-            writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8);
-            for (StringBuilder sb : getAllLines()) {
-                if (first) {
-                    writer.write(sb.toString());
-                    first = false;
-                } else {
-                    writer.newLine();
-                    writer.write(sb.toString());
-                }
-            }
-            writer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void saveAs(Path path) throws IOException {
+        savePath = path;
+        save();
     }
 
     /**
@@ -75,24 +54,15 @@ public class FileBuffer extends Buffer {
      *
      * @param path
      */
-    public void open(Path path) {
+    public void open(Path path) throws IOException {
         BufferedReader reader = null;
-        try {
-            savePath = path;
-            reader = Files.newBufferedReader(path);
-            for (String x = reader.readLine(); x != null; x = reader.readLine()) {
-                insertStr(x);
-                insertChar('\n');
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                reader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        savePath = path;
+        reader = Files.newBufferedReader(path);
+        for (String x = reader.readLine(); x != null; x = reader.readLine()) {
+            insertStr(x);
+            insertChar('\n');
         }
+        reader.close();
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.googlecode.lanterna.screen.ScreenWriter;
 import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.swing.TerminalAppearance;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -89,16 +90,23 @@ public class BufferView {
                             }
                             //save
                             if (k.getCharacter() == 's') {
-                                fBuffer.save();
+                                try {
+                                    fBuffer.save();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                             }
                             if (k.isAltPressed()) {
                                 //saveAS
                                 if (k.getCharacter() == 'w') {
                                     Path path = Paths.get("C:\\Users\\Vitor Afonso\\workspace\\Trabalho_2_Parte_2\\src\\new_file2.txt");
-                                    fBuffer.saveAs(path);
+                                    try {
+                                        fBuffer.saveAs(path);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
-
                             //cut
                             if (k.getCharacter() == 'x') {
                                 fBuffer.cut();
@@ -118,8 +126,6 @@ public class BufferView {
                         }
                         delete = false;
                         break;
-
-
                 }
             }
             phisicToLogic();
@@ -131,7 +137,6 @@ public class BufferView {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         }
     }
 
@@ -172,7 +177,11 @@ public class BufferView {
         visualText = new ArrayList<>();
         screen.startScreen();
         Path path = Paths.get("C:\\Users\\Vitor Afonso\\workspace\\Trabalho_2_Parte_2\\src\\new_file.txt");
-        fBuffer.open(path);
+        try {
+            fBuffer.open(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
