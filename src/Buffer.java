@@ -12,6 +12,7 @@ public class Buffer {
     private boolean marked;
     //ultimas operações
     private Stack<Edit> undoList;
+    private boolean undoing = false;
 
     public Buffer() {
         lines = new ArrayList<StringBuilder>();
@@ -87,7 +88,6 @@ public class Buffer {
 
     private void copying(int cursor_col, int cursor_line, int markRow) {
         for (int i = markRow; i <= cursor_line; i++) {
-
             StringBuilder nLine = getNLine(i);
             int length = nLine.length();
             if (i != cursor_line && i == markRow) {
@@ -107,7 +107,6 @@ public class Buffer {
     public void cut() {
         int cursor_col = getCursor().getColumn();
         int cursor_line = getCursor().getLine();
-        System.out.println("col: " + cursor_col + "\n line: " + cursor_line);
         if (isMarked()) {
             if (cursor_line == markRow) {
                 if (cursor_col < markCol) {
@@ -124,6 +123,7 @@ public class Buffer {
                 cuting(cursor_col, markRow, cursor_line);
             }
         }
+        undoList.push(new Edit(Edit.EditOp.CUT, markCol, markRow, ' '));
     }
 
     private void cuting(int cursor_col, int cursor_line, int markRow) {
@@ -156,6 +156,9 @@ public class Buffer {
      * Pastes the content of the clipBoard into the buffer
      */
     public void paste() {
+        int line = getCursor().getLine();
+        int column = getCursor().getColumn();
+        undoList.push(new Edit(Edit.EditOp.PASTE, column, line, ' '));
         insertStrWithLn();
         unsetMark();
     }
@@ -176,24 +179,31 @@ public class Buffer {
     private void undo(Edit edit) {
         switch (edit.getOp()) {
             case INSERT:
+                setCursor(edit.getCursorCol(), edit.getCursorRow());
+                deleteChar();
                 break;
             case DELETE:
+                setCursor(edit.getCursorCol() - 1, edit.getCursorRow());
+                insertChar(edit.getC());
                 break;
             case PASTE:
-                break;
-            case COPY:
+                edit.cut();
                 break;
             case CUT:
+                edit.paste();
                 break;
             default:
-                break;
+                return;
         }
     }
 
     public void undo() {
-        if (!undoList.isEmpty())
+        if (!undoList.isEmpty()) {
+            undoing = true;
             undo(undoList.pop());
-
+        } else
+            System.out.println("Stack is empty");
+        undoing = false;
     }
 
     public Cursor getCursor() {
@@ -244,6 +254,10 @@ public class Buffer {
         } else {
             this.insertStr("" + c);
         }
+        if (!undoing) {
+            Edit e = new Edit(Edit.EditOp.INSERT, getCursor().getColumn(), getCursor().getLine(), c);
+            undoList.push(e);
+        }
     }
 
     private void insertLn() {
@@ -284,11 +298,18 @@ public class Buffer {
         int cursor_col = getCursor().getColumn();
         int cur_line = getCursor().getLine();
         StringBuilder temp = getNLine(cur_line);
-        if (cursor_col == 0 && temp != null)
+        Edit e = null;
+        if (cursor_col == 0 && temp != null) {
+            e = new Edit(Edit.EditOp.DELETE, cursor_col, cur_line, temp.charAt(cursor_col - 1));
             deleteLn();
+        }
         else {
+            e = new Edit(Edit.EditOp.DELETE, cursor_col, cur_line, temp.charAt(cursor_col - 1));
             lines.get(cur_line).deleteCharAt(cursor_col - 1);
             setCursor(cursor_col - 1, cur_line);
+        }
+        if (!undoing) {
+            undoList.push(e);
         }
     }
 

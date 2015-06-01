@@ -28,5 +28,22 @@ public class Edit {
         return c;
     }
 
+    public void cut() {
+
+    }
+
+    public void insert() {
+
+
+    }
+
+    public void delete() {
+
+    }
+
+    public void paste() {
+
+    }
+
     enum EditOp {INSERT, DELETE, PASTE, CUT, COPY}
 }
