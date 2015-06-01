@@ -57,11 +57,13 @@ public class FileBuffer extends Buffer {
     public void open(Path path) throws IOException {
         BufferedReader reader = null;
         savePath = path;
+        undoing = true;
         reader = Files.newBufferedReader(path);
         for (String x = reader.readLine(); x != null; x = reader.readLine()) {
             insertStr(x);
             insertChar('\n');
         }
+        undoing = false;
         reader.close();
     }
 

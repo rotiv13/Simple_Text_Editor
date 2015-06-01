@@ -2,11 +2,11 @@ public class Edit {
     private EditOp op;
     //posição do cursor
     private int cursorRow, cursorCol;
-    //
-    private char c;
 
-    Edit(EditOp op, int col, int line, char c) {
-        this.c = c;
+    private Object o;
+
+    Edit(EditOp op, int col, int line, Object o) {
+        this.o = o;
         cursorCol = col;
         cursorRow = line;
         this.op = op;
@@ -24,26 +24,9 @@ public class Edit {
         return cursorCol;
     }
 
-    public char getC() {
-        return c;
+    public Object getObject() {
+        return o;
     }
 
-    public void cut() {
-
-    }
-
-    public void insert() {
-
-
-    }
-
-    public void delete() {
-
-    }
-
-    public void paste() {
-
-    }
-
-    enum EditOp {INSERT, DELETE, PASTE, CUT, COPY}
+    enum EditOp {INSERT, DELETE, PASTE, CUT}
 }

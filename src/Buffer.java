@@ -6,13 +6,13 @@ public class Buffer {
     private final Cursor cursor;
     //texto a ser copiado
     public StringBuilder clipBoard = new StringBuilder();
+    boolean undoing = false;
     //posicao da marca do cursor
     private int markRow, markCol;
     //true=temos uma posição marcada; false= nao tem posiçao marcada
     private boolean marked;
     //ultimas operações
     private Stack<Edit> undoList;
-    private boolean undoing = false;
 
     public Buffer() {
         lines = new ArrayList<StringBuilder>();
@@ -123,7 +123,9 @@ public class Buffer {
                 cuting(cursor_col, markRow, cursor_line);
             }
         }
-        undoList.push(new Edit(Edit.EditOp.CUT, markCol, markRow, ' '));
+        if (!undoing) {
+            undoList.push(new Edit(Edit.EditOp.CUT, markCol, markRow, clipBoard));
+        }
     }
 
     private void cuting(int cursor_col, int cursor_line, int markRow) {
@@ -158,7 +160,8 @@ public class Buffer {
     public void paste() {
         int line = getCursor().getLine();
         int column = getCursor().getColumn();
-        undoList.push(new Edit(Edit.EditOp.PASTE, column, line, ' '));
+        if (!undoing)
+            undoList.push(new Edit(Edit.EditOp.PASTE, column, line, clipBoard));
         insertStrWithLn();
         unsetMark();
     }
@@ -168,9 +171,11 @@ public class Buffer {
      */
     private void insertStrWithLn() {
         String temp = clipBoard.toString();
+        undoing = true;
         for (char c : temp.toCharArray()) {
             insertChar(c);
         }
+        undoing = false;
     }
 
     /**
@@ -184,13 +189,20 @@ public class Buffer {
                 break;
             case DELETE:
                 setCursor(edit.getCursorCol() - 1, edit.getCursorRow());
-                insertChar(edit.getC());
+                insertChar(edit.getObject().toString().charAt(0));
                 break;
             case PASTE:
-                edit.cut();
+                markRow = edit.getCursorRow();
+                markCol = edit.getCursorCol();
+                marked = true;
+                cut();
+                unsetMark();
                 break;
             case CUT:
-                edit.paste();
+                setCursor(edit.getCursorCol(), edit.getCursorRow());
+                clipBoard = new StringBuilder(edit.getObject().toString());
+                paste();
+                clipBoard = new StringBuilder();
                 break;
             default:
                 return;
@@ -300,10 +312,9 @@ public class Buffer {
         StringBuilder temp = getNLine(cur_line);
         Edit e = null;
         if (cursor_col == 0 && temp != null) {
-            e = new Edit(Edit.EditOp.DELETE, cursor_col, cur_line, temp.charAt(cursor_col - 1));
+            e = new Edit(Edit.EditOp.DELETE, cursor_col, cur_line, '\n');
             deleteLn();
-        }
-        else {
+        } else {
             e = new Edit(Edit.EditOp.DELETE, cursor_col, cur_line, temp.charAt(cursor_col - 1));
             lines.get(cur_line).deleteCharAt(cursor_col - 1);
             setCursor(cursor_col - 1, cur_line);
