@@ -69,7 +69,6 @@ public class Buffer {
         int cursor_line = getCursor().getLine();
         if (isMarked()) {
             if (cursor_line == markRow) {
-                StringBuilder nLine = getNLine(cursor_line);
                 if (cursor_col < markCol) {
                     copying(cursor_col, markRow, cursor_line);
                 }
@@ -111,7 +110,6 @@ public class Buffer {
         System.out.println("col: " + cursor_col + "\n line: " + cursor_line);
         if (isMarked()) {
             if (cursor_line == markRow) {
-                StringBuilder nLine = getNLine(cursor_line);
                 if (cursor_col < markCol) {
                     cuting(cursor_col, markRow, cursor_line);
                 }
