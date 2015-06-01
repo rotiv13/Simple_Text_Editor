@@ -71,45 +71,36 @@ public class Buffer {
             if (cursor_line == markRow) {
                 StringBuilder nLine = getNLine(cursor_line);
                 if (cursor_col < markCol) {
-                    clipBoard.append(nLine.subSequence(cursor_col, markCol));
+                    copying(cursor_col, markRow, cursor_line);
                 }
                 if (cursor_col > markCol) {
-                    clipBoard.append(nLine.subSequence(markCol, cursor_col));
+                    copying(cursor_col, cursor_line, markRow);
                 }
             }
             if (cursor_line > markRow) {
-                for (int i = markRow; i <= cursor_line; i++) {
-
-                    StringBuilder nLine = getNLine(i);
-                    int length = nLine.length();
-                    if (i != cursor_line && i == markRow) {
-                        clipBoard.append(nLine.subSequence(markCol, length));
-                    } else if (i != cursor_line && i != markRow) {
-                        clipBoard.append(nLine.subSequence(0, length));
-                    }
-                    if (i == cursor_line) {
-                        clipBoard.append(nLine.subSequence(0, cursor_col));
-                    }
-                    if (i != cursor_line) {
-                        clipBoard.append('\n');
-                    }
-                }
+                copying(cursor_col, cursor_line, markRow);
             }
             if (cursor_line < markRow) {
-                for (int i = cursor_line; i <= markRow; i++) {
-                    int length = getNLine(i).length();
-                    if (i != markRow && i == cursor_line) {
-                        clipBoard.append(getNLine(i).subSequence(cursor_col, length));
-                    } else if (i != cursor_line && i != markRow) {
-                        clipBoard.append(getNLine(i).subSequence(0, length));
-                    }
-                    if (i == markRow) {
-                        clipBoard.append(getNLine(i).subSequence(0, markCol));
-                    }
-                    if (i != markRow) {
-                        clipBoard.append('\n');
-                    }
-                }
+                copying(cursor_col, markRow, cursor_line);
+            }
+        }
+    }
+
+    private void copying(int cursor_col, int cursor_line, int markRow) {
+        for (int i = markRow; i <= cursor_line; i++) {
+
+            StringBuilder nLine = getNLine(i);
+            int length = nLine.length();
+            if (i != cursor_line && i == markRow) {
+                clipBoard.append(nLine.subSequence(markCol, length));
+            } else if (i != cursor_line && i != markRow) {
+                clipBoard.append(nLine.subSequence(0, length));
+            }
+            if (i == cursor_line) {
+                clipBoard.append(nLine.subSequence(0, cursor_col));
+            }
+            if (i != cursor_line) {
+                clipBoard.append('\n');
             }
         }
     }
@@ -122,70 +113,45 @@ public class Buffer {
             if (cursor_line == markRow) {
                 StringBuilder nLine = getNLine(cursor_line);
                 if (cursor_col < markCol) {
-                    clipBoard.append(nLine.subSequence(cursor_col, markCol));
-                    nLine.delete(cursor_col, markCol);
-                    setCursor(cursor_col, cursor_line);
+                    cuting(cursor_col, markRow, cursor_line);
                 }
                 if (cursor_col > markCol) {
-                    clipBoard.append(nLine.subSequence(markCol, cursor_col));
-                    nLine.delete(markCol, cursor_col);
-                    setCursor(markCol, cursor_line);
+                    cuting(cursor_col, cursor_line, markRow);
                 }
             }
             if (cursor_line > markRow) {
-                for (int i = markRow; i <= cursor_line; i++) {
-                    StringBuilder nLine = getNLine(i);
-                    int length = nLine.length();
-                    if (i != cursor_line && i == markRow) {
-                        clipBoard.append(nLine.subSequence(markCol, length));
-                        nLine.delete(markCol, length);
-                    }
-                    if (i != cursor_line && i != markRow) {
-                        clipBoard.append(nLine.subSequence(0, length));
-                        nLine.delete(0, length);
-                    }
-                    if (i == cursor_line) {
-                        clipBoard.append(nLine.subSequence(0, cursor_col));
-                        nLine.delete(0, cursor_col);
-                    }
-                    if (i != cursor_line) {
-                        clipBoard.append('\n');
-                    }
-                }
-                int remove_lines = cursor_line - markRow;
-                setCursor(markCol, markRow);
-                for (int i = 0; i < remove_lines; i++)
-                    deleteCharInFront();
+                cuting(cursor_col, cursor_line, markRow);
             }
             if (cursor_line < markRow) {
-                for (int i = cursor_line; i <= markRow; i++) {
-                    StringBuilder nLine = getNLine(i);
-                    int length = nLine.length();
-                    if (i != markRow && i == cursor_line) {
-                        clipBoard.append(nLine.subSequence(cursor_col, length));
-                        nLine.delete(cursor_col, length);
-
-                    }
-                    if (i != cursor_line && i != markRow) {
-                        clipBoard.append(nLine.subSequence(0, length));
-                        nLine.delete(0, length);
-                    }
-                    if (i == markRow) {
-                        clipBoard.append(nLine.subSequence(0, markCol));
-                        nLine.delete(0, markCol);
-                    }
-                    if (i != markRow) {
-                        clipBoard.append('\n');
-                    }
-                }
-                int remove_lines = cursor_line - markRow;
-                for (int i = 0; i < remove_lines; i++)
-                    deleteCharInFront();
-
+                cuting(cursor_col, markRow, cursor_line);
             }
-            System.out.println(clipBoard.toString());
         }
+    }
 
+    private void cuting(int cursor_col, int cursor_line, int markRow) {
+        for (int i = markRow; i <= cursor_line; i++) {
+            StringBuilder nLine = getNLine(i);
+            int length = nLine.length();
+            if (i != cursor_line && i == markRow) {
+                clipBoard.append(nLine.subSequence(markCol, length));
+                nLine.delete(markCol, length);
+            }
+            if (i != cursor_line && i != markRow) {
+                clipBoard.append(nLine.subSequence(0, length));
+                nLine.delete(0, length);
+            }
+            if (i == cursor_line) {
+                clipBoard.append(nLine.subSequence(0, cursor_col));
+                nLine.delete(0, cursor_col);
+            }
+            if (i != cursor_line) {
+                clipBoard.append('\n');
+            }
+        }
+        int remove_lines = cursor_line - markRow;
+        setCursor(markCol, markRow);
+        for (int i = 0; i < remove_lines; i++)
+            deleteCharInFront();
     }
 
     /**
@@ -193,10 +159,7 @@ public class Buffer {
      */
     public void paste() {
         insertStrWithLn();
-        markCol = 0;
-        markRow = 0;
-        marked = false;
-        clipBoard = new StringBuilder();
+        unsetMark();
     }
 
     /**

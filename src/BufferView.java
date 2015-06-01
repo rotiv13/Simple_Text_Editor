@@ -48,6 +48,20 @@ public class BufferView {
                     case ArrowDown:
                         fBuffer.moveNextLine();
                         break;
+                    case PageUp:
+                        if (startRow > 0) {
+                            startRow -= 30;
+                            fBuffer.setCursor(0, startRow);
+                        }
+                        updateCursor();
+                        break;
+                    case PageDown:
+                        if (fBuffer.getLinesCount() > 30 && startRow + 30 < fBuffer.getLinesCount()) {
+                            startRow += 30;
+                            fBuffer.setCursor(0, startRow);
+                        }
+                        updateCursor();
+                        break;
                     case ArrowLeft:
                         fBuffer.movePrev();
                         break;
@@ -62,8 +76,6 @@ public class BufferView {
                         break;
                     case Home:
                         fBuffer.moveHome();
-                        break;
-                    case PageUp:
                         break;
                     case Backspace:
                         fBuffer.deleteChar();
@@ -128,9 +140,11 @@ public class BufferView {
                         break;
                 }
             }
+            screen.clear();
             phisicToLogic();
-            drawText();
             updateCursor();
+            drawText();
+
             screen.refresh();
             try {
                 Thread.sleep(20);
@@ -140,10 +154,10 @@ public class BufferView {
         }
     }
 
+
     private void setMark() {
         int column = screen.getCursorPosition().getColumn();
         int line = screen.getCursorPosition().getRow();
-        System.out.println(column + " " + line);
         fBuffer.setMark(column, line);
 
     }
@@ -182,31 +196,29 @@ public class BufferView {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     private void drawText() {
-        for (int i = startRow; i < visualText.size(); i++) {
-            if (fBuffer.isMarked() && i == fBuffer.getMarkRow()) {
-                sWriter.setBackgroundColor(Terminal.Color.BLUE);
-                sWriter.setForegroundColor(Terminal.Color.MAGENTA);
-            }
-            sWriter.drawString(0, i, visualText.get(i));
-            updateCursor();
-            notMarked();
-
+        screen.clear();
+        int size = 0;
+        int visualtextSize = visualText.size();
+        if (visualtextSize < startRow + 30) {
+            size = visualtextSize;
+        } else
+            size = startRow + 30;
+        for (int i = startRow; i < size; i++) {
+            sWriter.drawString(0, i % 30, visualText.get(i));
         }
     }
-
-    private void notMarked() {
-        sWriter.setForegroundColor(Terminal.Color.WHITE);
-        sWriter.setBackgroundColor(Terminal.Color.BLACK);
-    }
-
 
     private void updateCursor() {
         int column = fBuffer.getCursor().getColumn();
         int line = fBuffer.getCursor().getLine();
-        screen.setCursorPosition(column, line);
+        startRow = 30 * (line / 30);
+        if (column / 100 > 0) {
+            screen.setCursorPosition(column % 100, line + column / 100);
+        } else
+            screen.setCursorPosition(column, line % 30);
+
     }
 }
