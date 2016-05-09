@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public class BufferView {
     //largura e altura da janela
     private final int WIDTH = 100, HEIGHT = 30;
-    boolean delete = false;
+    private boolean delete = false;
     private FileBuffer fBuffer;
     // linha início da janela
     private int startRow = 0;
@@ -30,7 +30,7 @@ public class BufferView {
     }
 
     public static void main(String[] args) {
-        BufferView bf = new BufferView();
+        new BufferView();
     }
 
     private void keyInput() {
@@ -50,14 +50,16 @@ public class BufferView {
                         break;
                     case PageUp:
                         if (startRow > 0) {
-                            startRow -= 30;
+                            int rows = screen.getTerminalSize().getRows();
+                            startRow -= rows;
                             fBuffer.setCursor(0, startRow);
                         }
                         updateCursor();
                         break;
                     case PageDown:
-                        if (fBuffer.getLinesCount() > 30 && startRow + 30 < fBuffer.getLinesCount()) {
-                            startRow += 30;
+                        int rows = screen.getTerminalSize().getRows();
+                        if (fBuffer.getLinesCount() > rows && startRow + rows < fBuffer.getLinesCount()) {
+                            startRow += rows;
                             fBuffer.setCursor(0, startRow);
                         }
                         updateCursor();
@@ -144,7 +146,6 @@ public class BufferView {
             phisicToLogic();
             updateCursor();
             drawText();
-
             screen.refresh();
             try {
                 Thread.sleep(20);
@@ -159,7 +160,6 @@ public class BufferView {
         int column = screen.getCursorPosition().getColumn();
         int line = screen.getCursorPosition().getRow();
         fBuffer.setMark(column, line);
-
     }
 
     private void phisicToLogic() {
@@ -174,13 +174,12 @@ public class BufferView {
 
     private void splitString(String string, int length) {
         String chunck = "";
-        Matcher matcher = Pattern.compile(".{0," + length + "}").matcher(string);
+        Matcher matcher = Pattern.compile(".*" + length + "}").matcher(string);
         while (matcher.find()) {
             chunck = string.substring(matcher.start(), matcher.end());
             if (!chunck.equals(""))
                 visualText.add(chunck);
         }
-
     }
 
     private void startScreen() {
@@ -190,7 +189,7 @@ public class BufferView {
         sWriter = new ScreenWriter(screen);
         visualText = new ArrayList<>();
         screen.startScreen();
-        Path path = Paths.get("C:\\Users\\Vitor Afonso\\workspace\\Trabalho_2_Parte_2\\src\\new_file.txt");
+        Path path = Paths.get("C:\\Users\\Vitor Afonso\\workspace\\Trabalho_2_Parte_2\\src\\newfile.txt");
         try {
             fBuffer.open(path);
         } catch (IOException e) {
@@ -200,8 +199,9 @@ public class BufferView {
 
     private void drawText() {
         screen.clear();
-        int size = 0;
+        int size;
         int visualtextSize = visualText.size();
+        //control for when text has to many lines
         if (visualtextSize < startRow + 30) {
             size = visualtextSize;
         } else
@@ -219,6 +219,5 @@ public class BufferView {
             screen.setCursorPosition(column % 100, line + column / 100);
         } else
             screen.setCursorPosition(column, line % 30);
-
     }
 }

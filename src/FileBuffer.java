@@ -5,9 +5,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class FileBuffer extends Buffer {
+class FileBuffer extends Buffer {
     //true = modificado;false=inalterado
-    boolean modified = false;
+    private boolean modified = false;
     //null = caminho não definido
     private Path savePath;
 
@@ -19,7 +19,7 @@ public class FileBuffer extends Buffer {
     /**
      * Guarda o documento do path actual;
      */
-    public void save() throws IOException {
+    void save() throws IOException {
         BufferedWriter writer;
         modified = false;
         boolean first = true;
@@ -44,7 +44,7 @@ public class FileBuffer extends Buffer {
      *
      * @param path
      */
-    public void saveAs(Path path) throws IOException {
+    void saveAs(Path path) throws IOException {
         savePath = path;
         save();
     }
@@ -54,7 +54,7 @@ public class FileBuffer extends Buffer {
      *
      * @param path
      */
-    public void open(Path path) throws IOException {
+    void open(Path path) throws IOException {
         BufferedReader reader = null;
         savePath = path;
         undoing = true;

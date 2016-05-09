@@ -166,17 +166,7 @@ public class Buffer {
         unsetMark();
     }
 
-    /**
-     * Like insertStr(String) but if the String has '\n' it doesnt return an error
-     */
-    private void insertStrWithLn() {
-        String temp = clipBoard.toString();
-        undoing = true;
-        for (char c : temp.toCharArray()) {
-            insertChar(c);
-        }
-        undoing = false;
-    }
+
 
     /**
      * @param edit
@@ -188,7 +178,10 @@ public class Buffer {
                 deleteChar();
                 break;
             case DELETE:
-                setCursor(edit.getCursorCol() - 1, edit.getCursorRow());
+                if(edit.getCursorCol()==0)
+                    setCursor(0, edit.getCursorRow());
+                else
+                    setCursor(edit.getCursorCol()-1,edit.getCursorRow());
                 insertChar(edit.getObject().toString().charAt(0));
                 break;
             case PASTE:
@@ -245,15 +238,15 @@ public class Buffer {
     private boolean validPos(int col, int lines) {
         int col_lines = getNLine(lines).length();
         int linesCount = getLinesCount();
-        return col >= 0 && col <= col_lines && lines >= 0 && lines <= linesCount;
+        return col >= 0 && col <= col_lines && lines >= 0 && lines < linesCount;
     }
 
     public void insertStr(String txt) {
         if (txt.contains("\n")) {
             throw new IllegalArgumentException("Buffer.insert: text has new line!");
         } else {
-            final int column = getCursor().getColumn();
-            final int line = getCursor().getLine();
+            int column = getCursor().getColumn();
+            int line = getCursor().getLine();
             getNLine(line).insert(column, txt);
             setCursor(column + txt.length(), line);
         }
@@ -264,7 +257,7 @@ public class Buffer {
         if (c == '\n') {
             insertLn();
         } else {
-            this.insertStr("" + c);
+            insertStr("" + c);
         }
         if (!undoing) {
             Edit e = new Edit(Edit.EditOp.INSERT, getCursor().getColumn(), getCursor().getLine(), c);
@@ -272,8 +265,20 @@ public class Buffer {
         }
     }
 
+    /**
+     * Like insertStr(String) but if the String has '\n' it doesnt return an error
+     */
+    private void insertStrWithLn() {
+        String temp = clipBoard.toString();
+        undoing = true;
+        for (char c : temp.toCharArray()) {
+            insertChar(c);
+        }
+        undoing = false;
+    }
+
     private void insertLn() {
-        final int column = getCursor().getColumn();
+        int column = getCursor().getColumn();
         int line = getCursor().getLine();
         //se o cursor estiver na ultima coluna da linha
         int length = getNLine(line).length();
@@ -352,9 +357,13 @@ public class Buffer {
         int cursor_l = getCursor().getLine();
         int size = getNLine(cursor_l).length();
         int cursor_col = getCursor().getColumn();
+        //cursor no meio da linha
         if (cursor_col < size) {
             setCursor(cursor_col + 1, cursor_l);
-        } else {
+        }
+//        cursor no fim da linha
+        else {
+//            existem mais linha depois da atual
             if (cursor_l + 1 < getLinesCount()) {
                 this.setCursor(0, cursor_l + 1);
             }
@@ -364,18 +373,25 @@ public class Buffer {
     public void movePrev() {
         int cursor_col = getCursor().getColumn();
         int cursor_line = getCursor().getLine();
+        //cursor no meio da linha
         if (cursor_col > 0) {
             setCursor(cursor_col - 1, cursor_line);
-        } else if (cursor_line > 0) {
-            this.setCursor(getNLine(cursor_line - 1).length(), cursor_line - 1);
+        }
+        //move o cursor para a linha anterior se esta existir
+        else if (cursor_line > 0) {
+            int length = getNLine(cursor_line - 1).length();
+            setCursor(length, cursor_line - 1);
         }
     }
 
     public void movePrevLine() {
         int size;
         int cursor_line = getCursor().getLine();
+        //move o cursor se não estiver na linha 0
         if (cursor_line > 0) {
+            //tamanho da linha anterior
             size = getNLine(cursor_line - 1).length();
+            //coluna do cursor
             int cursor_col = getCursor().getColumn();
             int min = Math.min(size, cursor_col);
             setCursor(min, cursor_line - 1);
@@ -383,9 +399,12 @@ public class Buffer {
     }
 
     public void moveNextLine() {
+        //linha atual do cursor
         int cursor_line = getCursor().getLine();
         int size;
+        //testa se exite uma linha aseguir
         if (cursor_line + 1 < getLinesCount()) {
+            //tamanho da linha seguinte
             size = getNLine(cursor_line + 1).length();
             int min = Math.min(size, getCursor().getColumn());
             setCursor(min, cursor_line + 1);

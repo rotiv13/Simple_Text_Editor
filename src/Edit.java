@@ -1,6 +1,6 @@
-public class Edit {
+class Edit {
     private EditOp op;
-    //posição do cursor
+    //posiï¿½ï¿½o do cursor
     private int cursorRow, cursorCol;
 
     private Object o;
@@ -12,19 +12,19 @@ public class Edit {
         this.op = op;
     }
 
-    public EditOp getOp() {
+    EditOp getOp() {
         return op;
     }
 
-    public int getCursorRow() {
+    int getCursorRow() {
         return cursorRow;
     }
 
-    public int getCursorCol() {
+    int getCursorCol() {
         return cursorCol;
     }
 
-    public Object getObject() {
+    Object getObject() {
         return o;
     }
 
